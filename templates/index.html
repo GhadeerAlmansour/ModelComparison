@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 50%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Model Comparison</h1>
+        <form id="queryForm">
+            <label for="query">Enter your query:</label><br>
+            <input type="text" id="query" name="query" required style="width: 100%; padding: 10px; margin-top: 10px;"><br><br>
+            <input type="submit" value="Submit" style="padding: 10px 20px;">
+        </form>
+        <div id="responses"></div>
+    </div>
+
+    <script>
+      document.getElementById('queryForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const query = document.getElementById('query').value;
+
+            const responsesDiv = document.getElementById('responses');
+            responsesDiv.innerHTML = '<div class="response">Loading...</div>';
+
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ 'query': query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responsesDiv.innerHTML = '';
+                for (const [model, response] of Object.entries(data)) {
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'response';
+                    responseDiv.innerHTML = `<strong>${model}:</strong> ${response}`;
+                    responsesDiv.appendChild(responseDiv);
+                }
+            })
+            .catch(error => {
+                responsesDiv.innerHTML = '<div class="response">An error occurred. Please try again.</div>';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+
+</html>
